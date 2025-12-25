@@ -3,10 +3,43 @@
     
     let shows = [];
 
+    async function fetchLatestVersion() {
+        const url = `version.json?t=${Date.now()}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        return response.json();
+    }
+
+    async function purgeCachesAndReload(nextVersion) {
+        try {
+            if ('serviceWorker' in navigator) {
+                const controller = navigator.serviceWorker.controller;
+                if (controller) controller.postMessage({ type: 'PURGE_CACHES' });
+
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map((r) => r.unregister()));
+            }
+        } catch (e) {
+            console.warn('Service worker unregister failed:', e);
+        }
+
+        try {
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map((k) => caches.delete(k)));
+            }
+        } catch (e) {
+            console.warn('CacheStorage clear failed:', e);
+        }
+
+        localStorage.clear();
+        localStorage.setItem('appVersion', nextVersion);
+
+        window.location.reload();
+    }
+
     async function checkVersion() {
         try {
-            const response = await fetch('https://schan.pages.dev/version.json?t=' + Date.now(), { cache: 'no-store' });
-            const { version } = await response.json();
+            const { version } = await fetchLatestVersion();
             const cachedVersion = localStorage.getItem('appVersion');
             
             document.getElementById('version-display').textContent = `v${cachedVersion || version}`;
@@ -32,11 +65,7 @@
                 document.body.appendChild(dialog);
                 
                 dialog.querySelector('#cancel-update').onclick = () => dialog.remove();
-                dialog.querySelector('#confirm-update').onclick = () => {
-                    localStorage.clear();
-                    localStorage.setItem('appVersion', version);
-                    window.location.reload(true);
-                };
+                dialog.querySelector('#confirm-update').onclick = () => purgeCachesAndReload(version);
             } else if (!cachedVersion) {
                 localStorage.setItem('appVersion', version);
             }
@@ -59,8 +88,14 @@
     function displayShows() {
         const grid = document.getElementById('shows-grid');
         grid.innerHTML = '';
+
+        const prioritizedShows = [...shows].sort((a, b) => {
+            const aFeatured = (a && (a.featured === true || a.fetured === true)) ? 1 : 0;
+            const bFeatured = (b && (b.featured === true || b.fetured === true)) ? 1 : 0;
+            return bFeatured - aFeatured;
+        });
         
-        shows.forEach(show => {
+        prioritizedShows.forEach(show => {
             const card = document.createElement('div');
             card.className = 'show-card';
             card.tabIndex = 0;
