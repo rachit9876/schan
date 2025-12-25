@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Stream unlimited cartoon episodes anytime, anywhere">
+    <meta property="og:title" content="⭐ SCHAN">
+    <meta property="og:description" content="Stream unlimited cartoon episodes anytime, anywhere">
+    <meta property="og:image" content="https://schan.pages.dev/assets/image.webp">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://schan.pages.dev/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="⭐ SCHAN">
+    <meta name="twitter:description" content="Stream unlimited cartoon episodes anytime, anywhere">
+    <meta name="twitter:image" content="https://schan.pages.dev/assets/image.webp">
+    <meta name="theme-color" content="#211F26">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="assets/image.webp">
+    <title>⭐ SCHAN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <header>
+        <div class="site-logo" role="button" tabindex="0" aria-label="Go to home">⭐ SCHAN</div>
+        <nav>
+            <span id="version-display" style="color:var(--md-sys-color-on-surface-variant);font-size:12px;padding:8px 12px;"></span>
+            <button id="install-btn" style="display:none;" aria-label="Install app">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            </button>
+            <button id="clear-history-btn" aria-label="Clear watch history">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+            </button>
+
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <img src="assets/image.webp" alt="SCHAN" id="hero-image" class="skeleton">
+        </section>
+
+        <section id="shows-container">
+            <div id="shows-grid"></div>
+        </section>
+    </main>
+
+    <script>
+        const heroImg = document.getElementById('hero-image');
+        if (heroImg.complete) {
+            heroImg.classList.remove('skeleton');
+            heroImg.classList.add('loaded');
+        } else {
+            heroImg.onload = () => {
+                heroImg.classList.remove('skeleton');
+                heroImg.classList.add('loaded');
+            };
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "tom-and-jerry",
+    "title": "Tom and Jerry",
+    "thumbnail": "assets/tomAndJerry.webp",
+    "episodesFile": "json/tomAndJerry.json"
+  },
+  {
+    "id": "oggy",
+    "title": "Oggy and the Cockroaches",
+    "thumbnail": "assets/oggyAndTheCockroaches.webp",
+    "episodesFile": "json/oggyAndTheCockroaches.json"
+  },
+  {
+    "id": "shinchan",
+    "title": "Shinchan",
+    "thumbnail": "assets/shinchan.webp",
+    "episodesFile": "json/shinchan.json"
+  },
+  {
+    "id": "doraemon",
+    "title": "Doraemon",
+    "thumbnail": "assets/doraemon.webp",
+    "episodesFile": "json/doraemon.json"
+  },
+  {
+    "id": "ninja-hattori",
+    "title": "Ninja Hattori",
+    "thumbnail": "assets/ninjaHattori.webp",
+    "episodesFile": "json/ninjaHattori.json"
+  },
+  {
+    "id": "pink-panther",
+    "title": "Pink Panther",
+    "thumbnail": "assets/pinkPanther.webp",
+    "episodesFile": "json/pinkPanther.json"
+  },
+  {
+    "id": "courage-hindi",
+    "title": "Courage The Cowardly Dog (Hindi)",
+    "thumbnail": "assets/courageTheCowardlyDog.webp",
+    "episodesFile": "json/courage_hindi.json"
+  },
+  {
+    "id": "courage-eng",
+    "title": "Courage The Cowardly Dog (English)",
+    "thumbnail": "assets/courageTheCowardlyDog.webp",
+    "episodesFile": "json/courage_eng.json"
+  }
+]

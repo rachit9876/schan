@@ -1,0 +1,17 @@
+{
+  "name": "SCHAN",
+  "short_name": "SCHAN",
+  "description": "Stream unlimited cartoon episodes anytime, anywhere",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1C1B1F",
+  "theme_color": "#211F26",
+  "icons": [
+    {
+      "src": "/assets/image.webp",
+      "sizes": "192x192 512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}

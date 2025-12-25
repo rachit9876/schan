@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#211F26">
+    <title>⭐ SCHAN - Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="assets/image.webp">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="site-logo" role="button" tabindex="0" aria-label="Go to home">⭐ SCHAN</div>
+        <nav>
+            <button id="back-btn" aria-label="Back to shows">Back to Shows</button>
+        </nav>
+    </header>
+
+    <div id="player-view">
+        <div class="player-wrapper">
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <div id="loading-spinner" class="spinner"></div>
+                    <iframe id="video-player" allowfullscreen allow="autoplay"></iframe>
+                </div>
+                <div class="video-info">
+                    <h2 id="video-title"></h2>
+                    <p id="video-show"></p>
+                </div>
+            </div>
+            <div class="playlist-container">
+                <h3>Episodes</h3>
+                <div id="episodes-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="player.js"></script>
+</body>
+</html>
