@@ -110,7 +110,10 @@
     function initEventListeners() {
         const installBtn = document.getElementById('install-btn');
         const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const helpBtn = document.getElementById('help-btn');
         let deferredPrompt;
+        
+        helpBtn.addEventListener('click', () => window.open('https://flow-svg.pages.dev/#schan', '_blank'));
         
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
