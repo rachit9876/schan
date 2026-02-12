@@ -18,6 +18,12 @@
     "episodesFile": "json/shinchan.json"
   },
   {
+    "id": "shinchan-movies",
+    "title": "Shinchan Movies",
+    "thumbnail": "assets/shinchan.webp",
+    "episodesFile": "json/shinchanMovies.json"
+  },
+  {
     "id": "doraemon",
     "title": "Doraemon",
     "thumbnail": "assets/doraemon.webp",
