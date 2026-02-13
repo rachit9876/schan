@@ -86,26 +86,35 @@
         currentEpisodeIndex = index;
         const episode = currentEpisodes[index];
         
-        let driveId = driveIdCache.get(episode.url);
-        if (!driveId) {
-            driveId = episode.url.match(/\/d\/(.+?)\//)?.[1];
-            if (driveId) driveIdCache.set(episode.url, driveId);
+        const isStreamtape = episode.url.includes('streamtape.com');
+        let embedUrl;
+        
+        if (isStreamtape) {
+            embedUrl = episode.url;
+        } else {
+            let driveId = driveIdCache.get(episode.url);
+            if (!driveId) {
+                driveId = episode.url.match(/\/d\/(.+?)\//)?.[1];
+                if (driveId) driveIdCache.set(episode.url, driveId);
+            }
+            if (!driveId) return;
+            embedUrl = `https://drive.google.com/file/d/${driveId}/preview`;
         }
         
-        if (driveId) {
-            localStorage.setItem(`lastEpisode_${currentShow.id}`, index);
-            const iframe = document.getElementById('video-player');
-            const spinner = document.getElementById('loading-spinner');
-            const wrapper = document.querySelector('.video-wrapper');
-            
-            iframe.onload = null;
-            wrapper.style.opacity = LOADING_OPACITY;
-            spinner.style.display = 'block';
-            iframe.src = '';
-            
-            const existingOverlay = wrapper.querySelector('.popup-blocker');
-            if (existingOverlay) existingOverlay.remove();
-            
+        localStorage.setItem(`lastEpisode_${currentShow.id}`, index);
+        const iframe = document.getElementById('video-player');
+        const spinner = document.getElementById('loading-spinner');
+        const wrapper = document.querySelector('.video-wrapper');
+        
+        iframe.onload = null;
+        wrapper.style.opacity = LOADING_OPACITY;
+        spinner.style.display = 'block';
+        iframe.src = '';
+        
+        const existingOverlay = wrapper.querySelector('.popup-blocker');
+        if (existingOverlay) existingOverlay.remove();
+        
+        if (!isStreamtape) {
             const overlay = document.createElement('div');
             overlay.className = 'popup-blocker';
             const isMobile = window.innerWidth <= 768;
@@ -113,28 +122,28 @@
             const pos = isMobile ? '5px' : '8px';
             overlay.style.cssText = `position:absolute;top:${pos};right:${pos};width:${size};height:${size};background:#000;z-index:999;pointer-events:auto`;
             wrapper.appendChild(overlay);
-            
-            setTimeout(() => {
-                iframe.src = `https://drive.google.com/file/d/${driveId}/preview`;
-                iframe.onload = () => {
-                    spinner.style.display = 'none';
-                    wrapper.style.opacity = '1';
-                };
-            }, IFRAME_LOAD_DELAY);
-            
-            document.getElementById('video-title').textContent = episode.fileName;
-            document.getElementById('video-show').textContent = currentShow.title;
-            
-            document.querySelectorAll('.episode-item').forEach((item, i) => {
-                item.classList.toggle('active', i === index);
-            });
-            
-            document.querySelector('.episode-item.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
-            const url = new URL(window.location);
-            url.searchParams.set('episode', index + 1);
-            window.history.replaceState({}, '', url);
         }
+        
+        setTimeout(() => {
+            iframe.src = embedUrl;
+            iframe.onload = () => {
+                spinner.style.display = 'none';
+                wrapper.style.opacity = '1';
+            };
+        }, IFRAME_LOAD_DELAY);
+        
+        document.getElementById('video-title').textContent = episode.fileName;
+        document.getElementById('video-show').textContent = currentShow.title;
+        
+        document.querySelectorAll('.episode-item').forEach((item, i) => {
+            item.classList.toggle('active', i === index);
+        });
+        
+        document.querySelector('.episode-item.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        const url = new URL(window.location);
+        url.searchParams.set('episode', index + 1);
+        window.history.replaceState({}, '', url);
     }
 
     function showError(message) {
