@@ -38,13 +38,13 @@
   {
     "id": "courage-hindi",
     "title": "Courage The Cowardly Dog (Hindi)",
-    "thumbnail": "assets/courageTheCowardlyDog.webp",
+    "thumbnail": "assets/courageTheCowardlyDog_H.webp",
     "episodesFile": "json/courage_hindi.json"
   },
   {
     "id": "courage-eng",
     "title": "Courage The Cowardly Dog (English)",
-    "thumbnail": "assets/courageTheCowardlyDog.webp",
+    "thumbnail": "assets/courageTheCowardlyDog_E.webp",
     "episodesFile": "json/courage_eng.json"
   }
 ]
