@@ -1,249 +1,82 @@
 (function () {
     'use strict';
-
     let shows = [];
 
-    async function fetchLatestVersion() {
-        const url = `version.json?t=${Date.now()}`;
-        const response = await fetch(url, { cache: 'no-store' });
-        return response.json();
-    }
-
-    async function purgeCachesAndReload(nextVersion) {
+    async function loadApp() {
+        checkVersion();
         try {
-            if ('serviceWorker' in navigator) {
-                const controller = navigator.serviceWorker.controller;
-                if (controller) controller.postMessage({ type: 'PURGE_CACHES' });
-
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map((r) => r.unregister()));
-            }
-        } catch (e) {
-            console.warn('Service worker unregister failed:', e);
-        }
-
-        try {
-            if ('caches' in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map((k) => caches.delete(k)));
-            }
-        } catch (e) {
-            console.warn('CacheStorage clear failed:', e);
-        }
-
-        localStorage.clear();
-        localStorage.setItem('appVersion', nextVersion);
-
-        window.location.reload();
-    }
-
-    async function checkVersion() {
-        try {
-            const { version } = await fetchLatestVersion();
-            const cachedVersion = localStorage.getItem('appVersion');
-
-            document.getElementById('version-display').textContent = `v${cachedVersion || version}`;
-
-            if (cachedVersion && cachedVersion !== version) {
-                const keys = Object.keys(localStorage).filter(k => k.startsWith('lastEpisode_'));
-                const size = new Blob([JSON.stringify(localStorage)]).size;
-                const sizeKB = (size / 1024).toFixed(2);
-
-                const dialog = document.createElement('div');
-                dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999';
-                dialog.innerHTML = `
-                    <div style="background:var(--color-surface);padding:24px;border-radius:16px;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.5);border:1px solid var(--color-border)">
-                        <h3 style="margin:0 0 16px;color:var(--color-text-primary);font-size:20px;font-weight:500">New Version Available</h3>
-                        <p style="margin:0 0 8px;color:var(--color-text-secondary);font-size:14px;line-height:1.5">Clear cache to update to v${version}?</p>
-                        <p style="margin:0 0 20px;color:var(--color-text-secondary);font-size:13px">Watch history: ${keys.length} show(s) (~${sizeKB} KB)</p>
-                        <div style="display:flex;gap:12px;justify-content:flex-end">
-                            <button id="cancel-update" style="background:transparent;color:var(--color-primary);border:none;padding:10px 24px;border-radius:100px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s">Later</button>
-                            <button id="confirm-update" style="background:var(--color-primary);color:var(--color-on-primary);border:none;padding:10px 24px;border-radius:100px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s">Update</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(dialog);
-
-                dialog.querySelector('#cancel-update').onclick = () => dialog.remove();
-                dialog.querySelector('#confirm-update').onclick = () => purgeCachesAndReload(version);
-            } else if (!cachedVersion) {
-                localStorage.setItem('appVersion', version);
-            }
-        } catch (error) {
-            console.error('Version check failed:', error);
-        }
-    }
-
-    async function loadShows() {
-        try {
-            const response = await fetch('json/shows.json');
-            shows = await response.json();
+            const res = await fetch('json/shows.json');
+            shows = await res.json();
             setupHero();
-            displayShows();
-        } catch (error) {
-            console.error('Error loading shows:', error);
-            showError('Failed to load shows. Please refresh the page.');
+            renderGrid();
+        } catch (e) {
+            console.error(e);
         }
     }
 
     function setupHero() {
         if (!shows.length) return;
-
-        // Pick a random show
         const randomShow = shows[Math.floor(Math.random() * shows.length)];
-
-        const heroBg = document.getElementById('hero-background');
-        const heroTitle = document.getElementById('hero-title');
-        const heroBtn = document.getElementById('hero-play-btn');
-
-        // Set background with a fade effect
-        const img = new Image();
-        img.src = randomShow.thumbnail;
-        img.onload = () => {
-            heroBg.style.backgroundImage = `url('${randomShow.thumbnail}')`;
-            heroBg.style.opacity = '1';
-        };
-
-        heroTitle.textContent = randomShow.title;
-        heroTitle.classList.remove('skeleton-text');
-
-        // Setup Play Button
-        heroBtn.disabled = false;
-        heroBtn.onclick = () => {
-            const lastEpisode = parseInt(localStorage.getItem(`lastEpisode_${randomShow.id}`)) || 0;
-            window.location.href = `player.html?show=${randomShow.id}&episode=${lastEpisode + 1}`;
+        document.getElementById('hero-bg').style.backgroundImage = `url('${randomShow.thumbnail}')`;
+        document.getElementById('hero-title').textContent = randomShow.title;
+        
+        const btn = document.getElementById('hero-play');
+        btn.disabled = false;
+        btn.onclick = () => {
+            const lastEp = parseInt(localStorage.getItem(`lastEpisode_${randomShow.id}`)) || 0;
+            window.location.href = `player.html?show=${randomShow.id}&episode=${lastEp + 1}`;
         };
     }
 
-    function displayShows() {
+    function renderGrid() {
         const grid = document.getElementById('shows-grid');
         grid.innerHTML = '';
-
-        const prioritizedShows = [...shows].sort((a, b) => {
-            const aFeatured = (a && (a.featured === true || a.fetured === true)) ? 1 : 0;
-            const bFeatured = (b && (b.featured === true || b.fetured === true)) ? 1 : 0;
-            return bFeatured - aFeatured;
-        });
-
-        prioritizedShows.forEach(show => {
+        shows.forEach(show => {
             const card = document.createElement('div');
-            card.className = 'show-card';
-            card.tabIndex = 0;
-            card.setAttribute('role', 'button');
-            card.setAttribute('aria-label', `Watch ${show.title}`);
-
-            // Image Wrapper
-            const imgWrapper = document.createElement('div');
-            imgWrapper.className = 'card-image-wrapper';
-
-            const img = document.createElement('img');
-            img.className = 'skeleton';
-            img.alt = show.title;
-            img.loading = 'lazy';
-            img.onload = () => {
-                img.classList.remove('skeleton');
-                img.classList.add('loaded');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${show.thumbnail}" alt="${show.title}" class="card-img" loading="lazy">
+                <div class="card-info">
+                    <h3>${show.title}</h3>
+                </div>
+            `;
+            card.onclick = () => {
+                const lastEp = parseInt(localStorage.getItem(`lastEpisode_${show.id}`)) || 0;
+                window.location.href = `player.html?show=${show.id}&episode=${lastEp + 1}`;
             };
-            img.src = show.thumbnail;
-
-            imgWrapper.appendChild(img);
-
-            // Content Wrapper
-            const content = document.createElement('div');
-            content.className = 'card-content';
-
-            const h3 = document.createElement('h3');
-            h3.textContent = show.title;
-
-            content.appendChild(h3);
-
-            card.appendChild(imgWrapper);
-            card.appendChild(content);
-
-            const handleActivation = () => {
-                const lastEpisode = parseInt(localStorage.getItem(`lastEpisode_${show.id}`)) || 0;
-                window.location.href = `player.html?show=${show.id}&episode=${lastEpisode + 1}`;
-            };
-            card.addEventListener('click', handleActivation);
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleActivation();
-                }
-            });
-
             grid.appendChild(card);
         });
     }
 
-    function showError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--md-sys-color-error);color:var(--md-sys-color-on-error);padding:16px 24px;border-radius:8px;z-index:1000';
-        document.body.appendChild(errorDiv);
-        setTimeout(() => errorDiv.remove(), 5000);
-    }
+    async function checkVersion() {
+        try {
+            const res = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
+            const { version } = await res.json();
+            const cached = localStorage.getItem('appVersion');
+            document.getElementById('version-display').textContent = `v${cached || version}`;
 
-    function initEventListeners() {
-        const installBtn = document.getElementById('install-btn');
-        const clearHistoryBtn = document.getElementById('clear-history-btn');
-        const helpBtn = document.getElementById('help-btn');
-        let deferredPrompt;
-
-        helpBtn.addEventListener('click', () => window.open('https://flow-svg.pages.dev/#schan', '_blank'));
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'flex';
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
+            if (cached && cached !== version) {
+                if(confirm(`New update available (v${version}). Click OK to refresh and apply.`)) {
+                    localStorage.setItem('appVersion', version);
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(k => caches.delete(k)));
+                    }
+                    window.location.reload(true);
                 }
-                deferredPrompt = null;
+            } else if (!cached) {
+                localStorage.setItem('appVersion', version);
             }
-        });
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
-
-        clearHistoryBtn.addEventListener('click', () => {
-            const keys = Object.keys(localStorage).filter(k => k.startsWith('lastEpisode_'));
-            const size = new Blob([JSON.stringify(localStorage)]).size;
-            const sizeKB = (size / 1024).toFixed(2);
-
-            const dialog = document.createElement('div');
-            dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999';
-            dialog.innerHTML = `
-                <div style="background:var(--color-surface);padding:24px;border-radius:16px;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.5);border:1px solid var(--color-border)">
-                    <h3 style="margin:0 0 16px;color:var(--color-text-primary);font-size:20px;font-weight:500">Clear Watch History?</h3>
-                    <p style="margin:0 0 8px;color:var(--color-text-secondary);font-size:14px;line-height:1.5">This will delete your last watched episode for ${keys.length} show(s).</p>
-                    <p style="margin:0 0 20px;color:var(--color-text-secondary);font-size:13px">Cache size: ~${sizeKB} KB</p>
-                    <div style="display:flex;gap:12px;justify-content:flex-end">
-                        <button id="cancel-btn" style="background:transparent;color:var(--color-primary);border:none;padding:10px 24px;border-radius:100px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s">Cancel</button>
-                        <button id="sure-btn" style="background:#ef4444;color:#ffffff;border:none;padding:10px 24px;border-radius:100px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s">Sure</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(dialog);
-
-            dialog.querySelector('#cancel-btn').onclick = () => dialog.remove();
-            dialog.querySelector('#sure-btn').onclick = () => {
-                localStorage.clear();
-                dialog.remove();
-                window.location.reload(true);
-            };
-            dialog.onclick = (e) => { if (e.target === dialog) dialog.remove(); };
-        });
+        } catch (e) { console.error('Version check failed'); }
     }
 
-    initEventListeners();
-    checkVersion();
-    loadShows();
+    document.getElementById('clear-history-btn').onclick = () => {
+        if(confirm("Clear your entire watch history?")) {
+            localStorage.clear();
+            window.location.reload();
+        }
+    };
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    loadApp();
 })();

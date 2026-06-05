@@ -4,38 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#211F26">
+    <meta name="theme-color" content="#0a0a0c">
     <title>⭐ SCHAN - Player</title>
+    <link rel="icon" href="assets/image.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="icon" href="assets/image.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Mobile Warning Overlay -->
+    <div class="mobile-warning" id="mobile-warning">
+        <div class="warning-content">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <h2>Mobile View Not Supported</h2>
+            <p>Please use Desktop Mode or access from a computer for the best experience.</p>
+            <div class="warning-actions">
+                <button class="btn-solid" onclick="window.history.back()">Go Back</button>
+            </div>
+        </div>
+    </div>
+
     <header>
-        <div class="site-logo" role="button" tabindex="0" aria-label="Go to home">⭐ SCHAN</div>
-        <nav>
-            <button id="back-btn" aria-label="Back to shows">Back to Shows</button>
-        </nav>
+        <div class="logo" onclick="window.location.href='/'"><span>⭐</span> SCHAN</div>
+        <button id="back-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back
+        </button>
     </header>
 
-    <div id="player-view">
-        <div class="player-wrapper">
-            <div class="video-container">
-                <div class="video-wrapper">
-                    <div id="loading-spinner" class="spinner"></div>
-                    <iframe id="video-player" allowfullscreen allow="autoplay"></iframe>
-                </div>
-                <div class="video-info">
-                    <h2 id="video-title"></h2>
-                    <p id="video-show"></p>
-                </div>
+    <div class="player-container">
+        <div class="video-section">
+            <div class="iframe-wrapper">
+                <div class="loader" id="loader"></div>
+                <iframe id="video-player" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" loading="eager"></iframe>
             </div>
-            <div class="playlist-container">
-                <h3>Episodes</h3>
-                <div id="episodes-list"></div>
+            <div class="video-details">
+                <h1 id="video-title">Loading...</h1>
+                <p id="video-show">Please wait</p>
             </div>
+        </div>
+        
+        <div class="episodes-section">
+            <div class="ep-header">Episodes</div>
+            <div class="ep-list" id="ep-list"></div>
         </div>
     </div>
 
