@@ -1,21 +1,15 @@
 [
   {
-    "id": "tom-and-jerry",
-    "title": "Tom and Jerry",
-    "thumbnail": "assets/tomAndJerry.webp",
-    "episodesFile": "json/tomAndJerry.json"
+    "id": "courage_eng",
+    "title": "Courage The Cowardly Dog (Eng)",
+    "thumbnail": "assets/courageTheCowardlyDog_E.webp",
+    "episodesFile": "json/courage_eng.json"
   },
   {
-    "id": "oggy",
-    "title": "Oggy and the Cockroaches",
-    "thumbnail": "assets/oggyAndTheCockroaches.webp",
-    "episodesFile": "json/oggyAndTheCockroaches.json"
-  },
-  {
-    "id": "shinchan",
-    "title": "Shinchan",
-    "thumbnail": "assets/shinchan.webp",
-    "episodesFile": "json/shinchan.json"
+    "id": "courage_hindi",
+    "title": "Courage The Cowardly Dog (Hindi)",
+    "thumbnail": "assets/courageTheCowardlyDog_H.webp",
+    "episodesFile": "json/courage_hindi.json"
   },
   {
     "id": "doraemon",
@@ -24,27 +18,39 @@
     "episodesFile": "json/doraemon.json"
   },
   {
-    "id": "ninja-hattori",
+    "id": "ninjaHattori",
     "title": "Ninja Hattori",
     "thumbnail": "assets/ninjaHattori.webp",
     "episodesFile": "json/ninjaHattori.json"
   },
   {
-    "id": "pink-panther",
+    "id": "oggyAndTheCockroaches",
+    "title": "Oggy and the Cockroaches",
+    "thumbnail": "assets/oggyAndTheCockroaches.webp",
+    "episodesFile": "json/oggyAndTheCockroaches.json"
+  },
+  {
+    "id": "pinkPanther",
     "title": "Pink Panther",
     "thumbnail": "assets/pinkPanther.webp",
     "episodesFile": "json/pinkPanther.json"
   },
   {
-    "id": "courage-hindi",
-    "title": "Courage The Cowardly Dog (Hindi)",
-    "thumbnail": "assets/courageTheCowardlyDog_H.webp",
-    "episodesFile": "json/courage_hindi.json"
+    "id": "shinchan",
+    "title": "Shinchan",
+    "thumbnail": "assets/shinchan.webp",
+    "episodesFile": "json/shinchan.json"
   },
   {
-    "id": "courage-eng",
-    "title": "Courage The Cowardly Dog (English)",
-    "thumbnail": "assets/courageTheCowardlyDog_E.webp",
-    "episodesFile": "json/courage_eng.json"
+    "id": "tomAndJerry",
+    "title": "Tom and Jerry",
+    "thumbnail": "assets/tomAndJerry.webp",
+    "episodesFile": "json/tomAndJerry.json"
+  },
+  {
+    "id":"chhotaBheem",
+    "title":"Chhota Bheem",
+    "thumbnail":"assets/chhotaBheem.webp",
+    "episodesFile":"json/chhotaBheem.json"
   }
 ]

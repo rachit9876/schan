@@ -62,9 +62,25 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  const isNavigation = e.request.mode === 'navigate' || e.request.destination === 'document';
+  const isImage = e.request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|svg|webp|gif|ico)$/i);
 
-  if (isNavigation) {
+  if (isImage) {
+    // Cache First for images to save bandwidth
+    e.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(e.request);
+        const fetchPromise = fetch(e.request)
+          .then((fresh) => {
+            if (fresh && fresh.ok) cache.put(e.request, fresh.clone());
+            return fresh;
+          })
+          .catch(() => cached);
+        return cached || fetchPromise;
+      })()
+    );
+  } else {
+    // Network First for HTML, JS, CSS, JSON to ensure instant updates
     e.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
@@ -75,25 +91,14 @@ self.addEventListener('fetch', (e) => {
         } catch {
           const cached = await cache.match(e.request);
           if (cached) return cached;
-          return caches.match('/index.html');
+          
+          // Fallback to index.html only for navigation requests
+          if (e.request.mode === 'navigate' || e.request.destination === 'document') {
+            return caches.match('/index.html');
+          }
+          return new Response('', { status: 404 });
         }
       })()
     );
-    return;
   }
-
-  e.respondWith(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(e.request);
-      const fetchPromise = fetch(e.request)
-        .then((fresh) => {
-          if (fresh && fresh.ok) cache.put(e.request, fresh.clone());
-          return fresh;
-        })
-        .catch(() => cached);
-
-      return cached || fetchPromise;
-    })()
-  );
 });

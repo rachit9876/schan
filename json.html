@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Link to JSON Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2, h3 {
+            color: #333;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 5px 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button.secondary {
+            background-color: #007bff;
+        }
+        button.secondary:hover {
+            background-color: #0069d9;
+        }
+        button.danger {
+            background-color: #dc3545;
+        }
+        button.danger:hover {
+            background-color: #c82333;
+        }
+        .season-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .season-item {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+        .season-item h4 {
+            margin-top: 0;
+            color: #555;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .copy-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Bulk Episode Link to JSON Generator</h2>
+    
+    <label><strong>Show Title:</strong></label>
+    <input type="text" id="showTitle" placeholder="e.g. Shinchan">
+
+    <div class="season-list" id="seasonContainer">
+        <!-- Seasons will be added here -->
+    </div>
+
+    <button class="secondary" onclick="addSeasonUI()">+ Add New Season</button>
+    <button onclick="generateJSON()" style="float: right; background-color: #ff9800;">Generate JSON</button>
+
+    <div style="clear: both; margin-top: 30px;">
+        <h3>Output:</h3>
+        <pre id="jsonOutput">Click "Generate JSON" to see the result here...</pre>
+        <button class="secondary copy-btn" onclick="copyJSON()">Copy to Clipboard</button>
+    </div>
+</div>
+
+<script>
+    let seasonCount = 0;
+
+    // Add initial season block
+    window.onload = () => {
+        addSeasonUI();
+    };
+
+    function addSeasonUI() {
+        seasonCount++;
+        const container = document.getElementById('seasonContainer');
+        
+        const seasonDiv = document.createElement('div');
+        seasonDiv.className = 'season-item';
+        seasonDiv.id = `season-${seasonCount}`;
+        
+        seasonDiv.innerHTML = `
+            <h4>Season <span class="sNum">${seasonCount}</span></h4>
+            <button class="remove-btn danger" onclick="removeSeason('season-${seasonCount}')">X Remove</button>
+            <label>Season Number:</label>
+            <input type="text" class="season-number" placeholder="e.g. 1" value="${seasonCount}">
+            
+            <label>Paste Episode Links (separated by commas or new lines):</label>
+            <textarea class="season-links" placeholder="https://drive.google.com/..., https://drive.google.com/..."></textarea>
+        `;
+        
+        container.appendChild(seasonDiv);
+    }
+
+    function removeSeason(id) {
+        const elem = document.getElementById(id);
+        if(elem) {
+            elem.remove();
+        }
+    }
+
+    function generateJSON() {
+        const title = document.getElementById('showTitle').value.trim();
+        if (!title) {
+            alert("Please enter a show title.");
+            return;
+        }
+
+        const seasonItems = document.querySelectorAll('.season-item');
+        if (seasonItems.length === 0) {
+            alert("Please add at least one season.");
+            return;
+        }
+
+        let seasonsData = [];
+
+        seasonItems.forEach(item => {
+            const sNum = item.querySelector('.season-number').value.trim() || "1";
+            const rawLinks = item.querySelector('.season-links').value.trim();
+            
+            if (!rawLinks) return; // Skip empty seasons
+
+            // Split by comma or newlines, then clean up spaces and remove empty strings
+            let linksArray = rawLinks.split(/[,\n]+/)
+                                     .map(link => link.trim())
+                                     .filter(link => link.length > 0);
+
+            if (linksArray.length > 0) {
+                seasonsData.push({
+                    "seasonNumber": parseInt(sNum),
+                    "episodes": linksArray
+                });
+            }
+        });
+
+        if (seasonsData.length === 0) {
+            alert("Please paste some links in the seasons.");
+            return;
+        }
+
+        const finalJSON = {
+            "title": title,
+            "seasons": seasonsData
+        };
+
+        document.getElementById('jsonOutput').textContent = JSON.stringify(finalJSON, null, 2);
+    }
+
+    function copyJSON() {
+        const text = document.getElementById('jsonOutput').textContent;
+        if(text.includes("Click")) return;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = "Copied!";
+            btn.style.backgroundColor = "#28a745";
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = "#007bff";
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            alert("Failed to copy. Please select and copy manually.");
+        });
+    }
+</script>
+
+</body>
+</html>

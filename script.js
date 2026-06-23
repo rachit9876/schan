@@ -24,7 +24,10 @@
         btn.disabled = false;
         btn.onclick = () => {
             const lastEp = parseInt(localStorage.getItem(`lastEpisode_${randomShow.id}`)) || 0;
-            window.location.href = `player.html?show=${randomShow.id}&episode=${lastEp + 1}`;
+            const lastSeason = localStorage.getItem(`lastSeason_${randomShow.id}`);
+            let url = `player.html?show=${randomShow.id}&episode=${lastEp + 1}`;
+            if (lastSeason) url += `&season=${lastSeason}`;
+            window.location.href = url;
         };
     }
 
@@ -42,7 +45,10 @@
             `;
             card.onclick = () => {
                 const lastEp = parseInt(localStorage.getItem(`lastEpisode_${show.id}`)) || 0;
-                window.location.href = `player.html?show=${show.id}&episode=${lastEp + 1}`;
+                const lastSeason = localStorage.getItem(`lastSeason_${show.id}`);
+                let url = `player.html?show=${show.id}&episode=${lastEp + 1}`;
+                if (lastSeason) url += `&season=${lastSeason}`;
+                window.location.href = url;
             };
             grid.appendChild(card);
         });
